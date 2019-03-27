@@ -80,15 +80,21 @@ router.delete("/:id", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const post = await Posts.findById(req.params.id);
-    const title = await req.body.title;
-    const contents = await req.body.contents;
-    if (title && contents) {
-      Posts.update(req.body.id, post);
-      res.status(200).json(post);
+    const title = req.body.title;
+    const contents = req.body.contents;
+    if (!title || !contents) {
+      res.status(400).json({
+        errorMessage: "Please provide title and contents for the post."
+      });
     } else {
-      res
-        .status(404)
-        .json({ message: "The post with the specified ID does not exist." });
+      Posts.update(req.params.id, req.body);
+      if (post) {
+        res.status(200).json(post);
+      } else {
+        res
+          .status(404)
+          .json({ message: "The post with the specified ID does not exist." });
+      }
     }
   } catch (error) {
     res
